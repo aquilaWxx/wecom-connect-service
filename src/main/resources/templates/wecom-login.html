@@ -16,7 +16,15 @@
     function loadData() {
         axios.get('/api/loginParams')
             .then(res => {
-                document.getElementById('result').innerText = res.data;
+                let wecomData = res.data.data;
+                let {
+                    agentId,
+                    corpId,
+                    redirectUrl
+                } = wecomData;
+
+                const redirectUri = encodeURIComponent("http://zenblob-wecom.xinhub.cn/wecom/login");
+                window.location.href = `https://login.work.weixin.qq.com/wwlogin/sso/login?appid=${corpId}&redirect_uri=${redirectUri}&agentid=${agentId}`
             });
     }
 </script>
