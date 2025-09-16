@@ -140,18 +140,10 @@
     function loadData() {
         const url = new URL(window.location.href);
         let corpId = url.searchParams.get("corpId");
+        let agentId = url.searchParams.get("agentId");
 
-        axios.get(`/api/loginParams?corpId=${corpId}`)
-            .then(res => {
-                let wecomData = res.data.data;
-                let {
-                    agentId,
-                    corpId,
-                } = wecomData;
-
-                const redirectUri = encodeURIComponent(loginUrl);
-                window.location.href = `https://login.work.weixin.qq.com/wwlogin/sso/login?appid=${corpId}&redirect_uri=${redirectUri}&agentid=${agentId}`
-            });
+        const redirectUri = encodeURIComponent(loginUrl);
+        window.location.href = `https://login.work.weixin.qq.com/wwlogin/sso/login?appid=${corpId}&redirect_uri=${redirectUri}&agentid=${agentId}`
     }
 
 
