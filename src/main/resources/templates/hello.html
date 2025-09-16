@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Hello</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<h1 th:text="${message}"></h1>
+
+<!-- 调用 Spring Boot API -->
+<button onclick="loadData()">调用API</button>
+<div id="result"></div>
+
+<script>
+    function loadData() {
+        axios.get('/api/data')
+            .then(res => {
+                document.getElementById('result').innerText = res.data;
+            });
+    }
+</script>
+</body>
+</html>
