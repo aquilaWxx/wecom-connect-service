@@ -1,4 +1,4 @@
-package tech.zenblob.wecomconnectservice.controller;
+package tech.zenblob.wecomconnectservice.controller.apis;
 
 import io.swagger.annotations.Api;
 import org.springframework.validation.annotation.Validated;

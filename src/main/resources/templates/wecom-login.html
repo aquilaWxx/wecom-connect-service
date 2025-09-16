@@ -14,7 +14,7 @@
 
 <script>
     function loadData() {
-        axios.get('/api/data')
+        axios.get('/api/loginParams')
             .then(res => {
                 document.getElementById('result').innerText = res.data;
             });
