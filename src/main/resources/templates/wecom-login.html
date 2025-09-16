@@ -7,7 +7,7 @@
     <style>
         :root {
             --ld-z: 9999; /* 覆盖层 z-index */
-            --ld-bg: rgba(0, 0, 0, 0.45); /* 背景遮罩色 */
+            --ld-bg: rgba(255, 255, 255, 0.45); /* 背景遮罩色 */
             --ld-size: 56px; /* 指示器尺寸 */
             --ld-thick: 4px; /* 指示器线宽 */
             --ld-fg: #fff; /* 文字与前景色 */
@@ -124,7 +124,7 @@
 </head>
 <body>
 <!-- 全屏 Loading 覆盖层：默认隐藏 -->
-<div id="app-loading" class="loading-overlay" aria-hidden="true">
+<div id="app-loading" class="loading-overlay is-active" aria-hidden="true">
     <div class="loading-backdrop"></div>
 
     <div class="loading-content" role="status" aria-live="polite" aria-busy="true">
