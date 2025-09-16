@@ -4,3 +4,10 @@ spring:
       matching-strategy: ant_path_matcher
 server:
   port: 8777
+
+wecom:
+  login:
+    apps:
+      sample-app:
+        corp-id: wwxxxxxxxxxxxxxxx
+        agent-id: 1000000
