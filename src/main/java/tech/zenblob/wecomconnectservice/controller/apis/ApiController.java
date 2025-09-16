@@ -29,9 +29,9 @@ public class ApiController {
      */
     @GetMapping(value = "/loginParams")
     @ApiOperation(value = "获取企业微信登录所需的相关参数")
-    public BaseResponse<WecomParam> getWecomLoginParams() {
+    public BaseResponse<WecomParam> getWecomLoginParams(String corpId) {
         try {
-            WecomParam wecomParam = wecomService.getLoginParams();
+            WecomParam wecomParam = wecomService.getLoginParams(corpId);
             return BaseResponse.success(wecomParam);
         } catch (Exception e) {
             log.error("获取企业微信登录参数失败");

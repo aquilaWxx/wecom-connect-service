@@ -19,8 +19,10 @@ public class WecomService {
     @Autowired
     private WecomsProperties wecomsProperties;
 
-    public WecomParam getLoginParams() {
-        WecomsProperties.Wecom wecom = wecomsProperties.getList().stream().findFirst().orElse(null);
+    public WecomParam getLoginParams(String corpId) {
+        WecomsProperties.Wecom wecom = wecomsProperties.getList().stream()
+                .filter(w -> w.getCorp_id().equals(corpId))
+                .findFirst().orElse(null);
         if (wecom == null) {
             return null;
         }

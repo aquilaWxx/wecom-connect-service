@@ -1,32 +1,197 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html lang="en">
 <head>
     <meta charset="UTF-8"/>
-    <title>Hello</title>
+    <title>正在登录中...</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        :root {
+            --ld-z: 9999; /* 覆盖层 z-index */
+            --ld-bg: rgba(0, 0, 0, 0.45); /* 背景遮罩色 */
+            --ld-size: 56px; /* 指示器尺寸 */
+            --ld-thick: 4px; /* 指示器线宽 */
+            --ld-fg: #fff; /* 文字与前景色 */
+            --ld-accent: #3b82f6; /* 指示器高亮色（Tailwind 蓝） */
+            --ld-blur: 2px; /* 背景轻微模糊 */
+            --ld-fade-ms: 200ms; /* 淡入淡出时长 */
+        }
+
+        /* 覆盖层容器（占满全屏，禁止点击穿透） */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: var(--ld-z);
+            display: none; /* 默认不展示，通过 .is-active 控制显示 */
+            pointer-events: none; /* 避免未激活时误拦截事件 */
+        }
+
+        /* 激活态：显示并允许拦截点击 */
+        .loading-overlay.is-active {
+            display: block;
+            pointer-events: auto;
+        }
+
+        /* 背景遮罩 */
+        .loading-backdrop {
+            position: absolute;
+            inset: 0;
+            background: var(--ld-bg);
+            backdrop-filter: blur(var(--ld-blur));
+            opacity: 0;
+            transition: opacity var(--ld-fade-ms) ease;
+        }
+
+        /* 居中内容容器 */
+        .loading-content {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            align-content: center;
+            gap: 12px;
+            color: var(--ld-fg);
+            opacity: 0;
+            transition: opacity var(--ld-fade-ms) ease, transform var(--ld-fade-ms) ease;
+            transform: translateY(6px);
+        }
+
+        /* 进入态过渡 */
+        .loading-overlay.is-active .loading-backdrop,
+        .loading-overlay.is-active .loading-content {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 旋转指示器：双环样式，视觉更灵动 */
+        .loading-spinner {
+            width: var(--ld-size);
+            height: var(--ld-size);
+            border-radius: 50%;
+            border: var(--ld-thick) solid rgba(255, 255, 255, 0.25);
+            border-top-color: var(--ld-accent);
+            animation: ld-rotate 0.9s linear infinite;
+            position: relative;
+        }
+
+        /* 内环（可删除以简化） */
+        .loading-spinner::after {
+            content: "";
+            position: absolute;
+            inset: 8px;
+            border-radius: 50%;
+            border: var(--ld-thick) solid transparent;
+            border-right-color: var(--ld-fg);
+            animation: ld-rotate 0.9s linear infinite reverse;
+        }
+
+        .loading-text {
+            font-size: 14px;
+            letter-spacing: 0.02em;
+            opacity: 0.9;
+            user-select: none;
+        }
+
+        /* 动画关键帧 */
+        @keyframes ld-rotate {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* 减少动态偏好：关闭旋转与过渡，改为静态指示 */
+        @media (prefers-reduced-motion: reduce) {
+            .loading-backdrop,
+            .loading-content {
+                transition: none;
+            }
+
+            .loading-spinner,
+            .loading-spinner::after {
+                animation: none;
+                border-top-color: var(--ld-accent);
+                border-right-color: var(--ld-fg);
+            }
+        }
+
+        /* 激活时禁止滚动：给 <body> 添加 .no-scroll */
+        .no-scroll {
+            overflow: hidden !important;
+            touch-action: none;
+        }
+
+    </style>
+
 </head>
 <body>
-<h1 th:text="${message}"></h1>
+<!-- 全屏 Loading 覆盖层：默认隐藏 -->
+<div id="app-loading" class="loading-overlay" aria-hidden="true">
+    <div class="loading-backdrop"></div>
 
-<!-- 调用 Spring Boot API -->
-<button onclick="loadData()">调用API</button>
-<div id="result"></div>
+    <div class="loading-content" role="status" aria-live="polite" aria-busy="true">
+        <div class="loading-spinner" aria-label="正在加载"></div>
+        <p class="loading-text">正在加载…</p>
+    </div>
+</div>
+
 
 <script>
+    let loginUrl = "http://zenblob-wecom.xinhub.cn/wecom/login";
+
     function loadData() {
-        axios.get('/api/loginParams')
+        const url = new URL(window.location.href);
+        let corpId = url.searchParams.get("corpId");
+
+        axios.get(`/api/loginParams?corpId=${corpId}`)
             .then(res => {
                 let wecomData = res.data.data;
                 let {
                     agentId,
                     corpId,
-                    redirectUrl
                 } = wecomData;
 
-                const redirectUri = encodeURIComponent("http://zenblob-wecom.xinhub.cn/wecom/login");
+                const redirectUri = encodeURIComponent(loginUrl);
                 window.location.href = `https://login.work.weixin.qq.com/wwlogin/sso/login?appid=${corpId}&redirect_uri=${redirectUri}&agentid=${agentId}`
             });
     }
+
+
+    function getCookie(name) {
+        const cookies = document.cookie.split("; ");
+        for (let c of cookies) {
+            let [key, value] = c.split("=");
+            if (key === name) {
+                return decodeURIComponent(value);
+            }
+        }
+        return null;
+    }
+
+    window.onload = function () {
+
+        const url = new URL(window.location.href);
+        const code = url.searchParams.get('code');
+
+        if (!code) {
+            loadData();
+        }
+
+        let clientRedirectUrl = url.searchParams.get("redirectUrl");
+        if (clientRedirectUrl) {
+            document.cookie = "redirectUrl=" + clientRedirectUrl;
+        }
+
+        // 登陆成功回调
+        if (code) {
+            let urlBySession = getCookie('redirectUrl');
+
+            if (urlBySession) {
+                window.location.href = urlBySession + "?code=" + code;
+            } else {
+                window.location.href = loginUrl;
+            }
+        }
+    }
 </script>
+
 </body>
 </html>
